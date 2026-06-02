@@ -1,0 +1,16 @@
+{
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "env": {
+    "MONGO_URI": "@mongo_uri",
+    "JWT_SECRET": "@jwt_secret"
+  },
+  "envPrefix": "",
+  "functions": {
+    "app/api/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}
