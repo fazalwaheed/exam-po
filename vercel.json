@@ -6,7 +6,6 @@
     "MONGO_URI": "@mongo_uri",
     "JWT_SECRET": "@jwt_secret"
   },
-  "envPrefix": "",
   "functions": {
     "app/api/**/*.js": {
       "memory": 1024,
