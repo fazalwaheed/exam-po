@@ -145,6 +145,17 @@ git push -u origin main
 - Add `MONGO_URI` - Your MongoDB Atlas connection string
 - Add `JWT_SECRET` - A secure random string (min 32 characters)
 
+### Vercel: Setting Environment Variables (Recommended)
+
+- Do NOT store secrets in the repository. Configure them in the Vercel project dashboard instead.
+- In your Vercel project, go to **Settings → Environment Variables** and add the following keys:
+	- `MONGO_URI` = your MongoDB connection string (e.g. mongodb+srv://... or mongodb://localhost:27017/examportal)
+	- `JWT_SECRET` = a secure random string (at least 32 characters)
+- Alternatively you can create Vercel Secrets and reference them when configuring environment variables.
+- After adding variables, redeploy the project from the Vercel dashboard to apply the changes.
+
+If you need help adding these variables, I can prepare step-by-step instructions or create a short deployment script for you.
+
 ## Usage
 
 ### Admin Workflow
