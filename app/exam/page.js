@@ -88,7 +88,18 @@ export default function ExamPage() {
 
   // ── EXAM ──
   if(screen==="exam") {
-    if(!questions.length) return <div className="loading">Loading exam...</div>;
+    if(!questions || questions.length === 0) {
+      return (
+        <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"var(--bg)",padding:"2rem"}}>
+          <div style={{textAlign:"center",background:"var(--surface)",padding:"3rem",borderRadius:"16px",border:"1px solid var(--border)"}}>
+            <div style={{fontSize:"2rem",marginBottom:"1rem"}}>📭</div>
+            <div style={{fontSize:"1.3rem",fontWeight:700,marginBottom:".5rem"}}>No Questions Available</div>
+            <p style={{color:"var(--muted)",marginBottom:"2rem"}}>There are currently no questions assigned to this exam.</p>
+            <button className="btn btn-primary" onClick={()=>router.push("/")}>← Back to Home</button>
+          </div>
+        </div>
+      );
+    }
     const q = questions[curQ];
     const answered = Object.keys(answers).length;
     const tc = timeLeft<60?"var(--red)":timeLeft<180?"var(--yellow)":"var(--text)";
