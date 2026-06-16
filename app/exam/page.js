@@ -13,7 +13,6 @@ export default function ExamPage() {
   const [curQ, setCurQ]         = useState(0);
   const [timeLeft, setTL]       = useState(600);
   const [showExp, setShowExp]   = useState(true);
-  const [popup, setPopup]       = useState(null);
   const [result, setResult]     = useState(null);
   const [allQs, setAllQs]       = useState([]);
   const [submitting, setSub]    = useState(false);
@@ -111,15 +110,13 @@ export default function ExamPage() {
             {q.category&&<div style={{fontSize:".78rem",color:"var(--accent2)",marginBottom:".8rem",fontStyle:"italic"}}>Category: <b>{q.category}</b></div>}
             <div style={{fontSize:"1.1rem",fontWeight:600,lineHeight:1.6,marginBottom:"1.5rem"}}>{q.question}</div>
             {q.options.map((opt,i)=>{
-              const locked=answers[q._id]!==undefined; const sel=answers[q._id]===i;
+              const sel=answers[q._id]===i;
               return(
-                <button key={i} disabled={locked}
+                <button key={i}
                   onClick={()=>{
-                    if(locked)return;
                     const na={...ansRef.current,[q._id]:i}; setAns(na); ansRef.current=na;
-                    if(i!==q.correct&&showExp&&q.explanation) setPopup({chosen:i,correct:q.correct,exp:q.explanation,opts:q.options});
                   }}
-                  style={{width:"100%",textAlign:"left",padding:".9rem 1.2rem",borderRadius:"10px",border:`1px solid ${sel?"var(--accent)":"var(--border)"}`,background:sel?"rgba(59,130,246,.15)":"var(--surface2)",color:sel?"var(--accent)":"var(--text)",fontFamily:"'Sora',sans-serif",fontSize:".9rem",cursor:locked?"default":"pointer",marginBottom:".7rem",display:"flex",alignItems:"center",gap:".8rem"}}>
+                  style={{width:"100%",textAlign:"left",padding:".9rem 1.2rem",borderRadius:"10px",border:`1px solid ${sel?"var(--accent)":"var(--border)"}`,background:sel?"rgba(59,130,246,.15)":"var(--surface2)",color:sel?"var(--accent)":"var(--text)",fontFamily:"'Sora',sans-serif",fontSize:".9rem",cursor:"pointer",marginBottom:".7rem",display:"flex",alignItems:"center",gap:".8rem"}}>
                   <div style={{width:"28px",height:"28px",borderRadius:"50%",border:"1px solid currentColor",display:"flex",alignItems:"center",justifyContent:"center",fontSize:".8rem",fontWeight:700,flexShrink:0}}>{String.fromCharCode(65+i)}</div>
                   {opt}
                 </button>
@@ -135,33 +132,23 @@ export default function ExamPage() {
             </div>
             <div style={{display:"flex",gap:".7rem"}}>
               {curQ>0&&<button className="btn btn-ghost btn-sm" onClick={()=>setCurQ(c=>c-1)}>← Previous</button>}
-              {curQ<questions.length-1
-                ?<button className="btn btn-primary btn-sm" onClick={()=>setCurQ(c=>c+1)}>Next →</button>
-                :<button className="btn btn-success btn-sm" onClick={()=>doSubmit(email,questions)} disabled={submitting}>{submitting?"Submitting...":"✓ Submit Exam"}</button>}
+              {curQ<questions.length-1 && (
+                answers[questions[curQ]._id] === undefined 
+                  ? <button className="btn btn-ghost btn-sm" style={{border:"1px solid var(--border)"}} onClick={()=>setCurQ(c=>c+1)}>Skip →</button>
+                  : <button className="btn btn-primary btn-sm" onClick={()=>setCurQ(c=>c+1)}>Next →</button>
+              )}
+              {curQ===questions.length-1 && Object.keys(answers).length < questions.length && (
+                <button className="btn btn-ghost btn-sm" style={{border:"1px solid var(--accent)", color:"var(--accent)"}} onClick={() => {
+                  const firstSkipped = questions.findIndex(q => answers[q._id] === undefined);
+                  if(firstSkipped !== -1) setCurQ(firstSkipped);
+                }}>Solve Skipped</button>
+              )}
+              {curQ===questions.length-1 && (
+                <button className="btn btn-success btn-sm" onClick={()=>doSubmit(email,questions)} disabled={submitting || Object.keys(answers).length < questions.length}>{submitting?"Submitting...":"✓ Submit Exam"}</button>
+              )}
             </div>
           </div>
         </div>
-        {popup&&(
-          <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.75)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:"1rem",backdropFilter:"blur(4px)"}}>
-            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"20px",padding:"2rem",maxWidth:"480px",width:"100%"}}>
-              <div style={{fontSize:"2.5rem",textAlign:"center",marginBottom:".5rem"}}>❌</div>
-              <div style={{fontSize:"1.2rem",fontWeight:700,textAlign:"center",marginBottom:"1.2rem",color:"var(--red)"}}>Incorrect Answer</div>
-              <div style={{display:"flex",gap:".8rem",padding:".7rem 1rem",borderRadius:"10px",marginBottom:".6rem",background:"rgba(239,68,68,.1)",border:"1px solid rgba(239,68,68,.3)",color:"var(--red)"}}>
-                <span style={{fontWeight:700,whiteSpace:"nowrap",minWidth:"120px"}}>Your answer:</span>
-                <span>{String.fromCharCode(65+popup.chosen)}. {popup.opts[popup.chosen]}</span>
-              </div>
-              <div style={{display:"flex",gap:".8rem",padding:".7rem 1rem",borderRadius:"10px",marginBottom:".6rem",background:"rgba(16,185,129,.1)",border:"1px solid rgba(16,185,129,.3)",color:"var(--green)"}}>
-                <span style={{fontWeight:700,whiteSpace:"nowrap",minWidth:"120px"}}>Correct answer:</span>
-                <span>{String.fromCharCode(65+popup.correct)}. {popup.opts[popup.correct]}</span>
-              </div>
-              {popup.exp&&<div style={{background:"rgba(245,158,11,.07)",border:"1px solid rgba(245,158,11,.25)",borderRadius:"12px",padding:"1rem",marginTop:".8rem"}}>
-                <div style={{fontWeight:700,color:"var(--yellow)",marginBottom:".5rem",fontSize:".9rem"}}>💡 Explanation</div>
-                <div style={{fontSize:".88rem",lineHeight:1.6}}>{popup.exp}</div>
-              </div>}
-              <button className="btn btn-primary" style={{width:"100%",marginTop:"1rem"}} onClick={()=>{setPopup(null);if(curQ<questions.length-1)setCurQ(c=>c+1);}}>Got it — Next Question →</button>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
